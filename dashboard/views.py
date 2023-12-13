@@ -1,9 +1,10 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.shortcuts import render, redirect
 from dgs.models import DGSUser
 from dgs.connectors import DGSConnector
 from ogs.models import OGSUser
+from ogs.connectors import OGSConnector
 
 
 @login_required
@@ -22,17 +23,23 @@ def dashboard(request):
 
     # Fetch OGS games if the user is logged in
     try:
-        dgs_user = request.user.ogsuser
+        ogs_user = request.user.ogsuser
     except OGSUser.DoesNotExist:
         pass
     else:
-        dgs_connector = DGSConnector()
-        dgs_games = dgs_connector.show_games(dgs_user)
+        ogs_connector = OGSConnector()
+        ogs_games = ogs_connector.show_games(ogs_user)
 
-    return render(request, 'dashboard.html', {'dgs_games': dgs_games})
+    return render(
+        request, 'dashboard.html', {'dgs_games': dgs_games, 'ogs_games': ogs_games}
+    )
 
 
 def dashboard_login(request):
+    return render(request, 'login.html')
+
+
+def accounts(request):
     return render(request, 'login.html')
 
 
@@ -45,8 +52,7 @@ def dgs_login(request):
     passwd = request.POST.get('passwd')
 
     dgs_connector = DGSConnector()
-
-    user = dgs_connector.login(userid, passwd)
+    user = dgs_connector.login(userid, passwd, request.user)
 
     if not user:
         return render(request, 'login.html', {'userid': userid, 'failed': True})
@@ -64,4 +70,17 @@ def ogs_login(request):
     username = request.POST.get('username')
     password = request.POST.get('password')
 
-    return render(request, 'login.html', {'username': username, 'failed': True})
+    ogs_connector = OGSConnector()
+    user = ogs_connector.login(username, password, request.user)
+
+    if not user:
+        return render(request, 'login.html', {'username': username, 'failed': True})
+    else:
+        login(request, user)
+
+    return redirect('/dashboard')
+
+
+def logout_user(request):
+    logout(request)
+    return redirect('/login')

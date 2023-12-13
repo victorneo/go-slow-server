@@ -11,7 +11,7 @@ DGS_SHOW_GAMES_URL = 'https://www.dragongoserver.net/show_games.php?userid={}'
 
 
 class DGSConnector(object):
-    def login(self, userid, passwd) -> Optional[User]:
+    def login(self, userid, passwd, user) -> Optional[User]:
         s = requests.Session()
         resp = s.post(DGS_LOGIN_URL, {'userid': userid, 'passwd': passwd})
 
@@ -24,12 +24,13 @@ class DGSConnector(object):
         try:
             dgs_user = DGSUser.objects.select_related('user').get(userid=userid)
         except DGSUser.DoesNotExist:
-            # Generate a random username for this user
-            username = 'dgs_' + userid
-            user = User.objects.create(
-                username=username,
-                email=username + '@dragongoserver.net',
-            )
+            if not user.is_authenticated:
+                # Generate a random username for this user
+                username = 'dgs_' + userid
+                user = User.objects.create(
+                    username=username,
+                    email=username + '@dragongoserver.net',
+                )
             dgs_user = DGSUser.objects.create(
                 userid=userid,
                 cookie_sessioncode=cookie_sessioncode,
@@ -91,7 +92,7 @@ class DGSConnector(object):
         }
 
         to_be_updated = []
-        to_be_created = []
+        all_games = []
 
         for g in running_games:
             if g['game_id'] in records:
@@ -101,6 +102,7 @@ class DGSConnector(object):
                 record.opponent_time_remaining = g['opp_time_remaining']
                 record.my_turn = g['my_turn']
                 to_be_updated.append(record)
+                all_games.append(record)
             else:
                 record = DGSGame(dgs_user=dgs_user)
                 record.game_id = g['game_id']
@@ -115,15 +117,13 @@ class DGSConnector(object):
                 record.my_turn = g['my_turn']
                 record.my_time_remaining = g['my_time_remaining']
                 record.opponent_time_remaining = g['opp_time_remaining']
-                to_be_created.append(record)
+                record.save()
+                all_games.append(record)
 
-            DGSGame.objects.bulk_create(to_be_created)
             DGSGame.objects.bulk_update(
                 to_be_updated,
                 fields=['moves', 'my_time_remaining', 'opponent_time_remaining'],
             )
 
-        running_games = to_be_created + to_be_updated
-        cache.set(cache_key, running_games)
-
-        return running_games
+        cache.set(cache_key, all_games, 900)
+        return all_games

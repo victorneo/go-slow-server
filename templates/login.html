@@ -11,16 +11,16 @@
 
     <div class="flex flex-row justify-evenly">
 
-        {% if request.user.dgs_user %}
+        {% if user.dgsuser %}
 
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
             <div class="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
                 <h2 class="font-bold text-lg">Your DGS Account</h2>
+                <p class="mt-4">
+                    User ID: {{ user.dgsuser.userid }} <br />
+                    Username: {{ user.dgsuser.cookie_handle }}
+                </p>
             </div>
-            <p class="mt-4">
-                User ID: {{ request.user.dgs_user.userid }} <br />
-                Username: {{ request.user.dgs_user.cookie_handle }}
-            </p>
         </div>
 
         {% else %}
@@ -29,12 +29,15 @@
             <div class="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
                 <h2 class="font-bold text-lg">DGS Login</h2>
                 <form class="mt-4 space-y-6" action="/dgs/login/" method="POST">
+                    {% if userid and failed %}<p class="text-red-600">Login failed: Wrong User ID or Password.</p>
+                    {%endif %}
                     {% csrf_token %}
                     <div>
                         <label for="userid" class="block text-sm font-medium leading-6 text-gray-900">User ID</label>
                         <div class="mt-2">
                             <input id="userid" name="userid" type="username" autocomplete="username" required
-                                class="block w-full px-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                class="block w-full px-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                {% if userid %} value="{{ userid }}" {% endif %}>
                         </div>
                     </div>
 
@@ -59,17 +62,34 @@
         {% endif %}
 
 
+        {% if user.ogsuser %}
+
+        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
+            <div class="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
+                <h2 class="font-bold text-lg">Your OGS Account</h2>
+                <p class="mt-4">
+                    Username: {{ user.ogsuser.username }}
+                </p>
+            </div>
+        </div>
+
+        {% else %}
+
+
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
             <div class="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
                 <h2 class="font-bold text-lg">OGS Login</h2>
                 <form class="space-y-6 mt-4" action="/ogs/login/" method="POST">
+                    {% if username and failed %}<p class="text-red-600">Login failed: Wrong Username or Password.</p>
+                    {%endif %}
                     {% csrf_token %}
                     <div>
-                        <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email
-                            address</label>
+                        <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Username</label>
                         <div class="mt-2">
-                            <input id="email" name="email" type="email" autocomplete="email" required
-                                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                            <input id="username" name="username" type="username" autocomplete="username" required
+                                class="block w-full px-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                {% if username %} value="{{ username }}" {% endif %}>
+
                         </div>
                     </div>
 
@@ -78,7 +98,7 @@
                         <div class="mt-2">
                             <input id="password" name="password" type="password" autocomplete="current-password"
                                 required
-                                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                class="block w-full px-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                         </div>
                     </div>
 
@@ -91,6 +111,7 @@
 
             </div>
         </div>
+        {% endif %}
 
     </div>
 
