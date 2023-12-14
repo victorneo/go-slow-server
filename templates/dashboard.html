@@ -63,7 +63,7 @@
                                     {{g.handicap}}{% endif %})
                                 </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{% if g.my_turn %}Your
-                                    turn{% else %}Opponent's turn{% endif %}
+                                    turn{% else %}Opponent's turn{% endif %} ({{ g.moves }})
                                 </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ g.my_time_remaining }}
                                 </td>
@@ -92,6 +92,7 @@
                                 </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{% if g.my_turn %}
                                     <span class="font-bold">Your turn</span>{% else %}Opponent's turn{% endif %}
+                                    ({{ g.moves }})
                                 </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                     {{ g.my_time_remaining_display }}

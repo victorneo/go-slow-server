@@ -26,6 +26,7 @@ class OGSGame(models.Model):
     handicap = models.PositiveSmallIntegerField(default=0)
     komi = models.FloatField(default=6.5)
     rules = models.CharField(max_length=255)
+    moves = models.PositiveSmallIntegerField(default=0)
 
     my_turn = models.BooleanField(default=True)
     my_time_remaining = models.IntegerField(default=0)

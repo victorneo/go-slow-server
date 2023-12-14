@@ -145,6 +145,7 @@ class OGSConnector(object):
                     my_turn=my_turn,
                     my_time_remaining=my_time_remaining,
                     opponent_time_remaining=opponent_time_remaining,
+                    moves=len(g['json']['moves']),
                 )
                 game.save()
                 all_games.append(game)
@@ -152,6 +153,7 @@ class OGSConnector(object):
                 game.my_turn = my_turn
                 game.my_time_remaining = my_time_remaining
                 game.opponent_time_remaining = opponent_time_remaining
+                game.moves = len(g['json']['moves'])
                 to_be_updated.append(game)
                 all_games.append(game)
 
